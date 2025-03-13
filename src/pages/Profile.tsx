@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Profile as ProfileType, Tables } from '@/types/supabase';
+import { Profile as ProfileType } from '@/types/supabase';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -27,21 +26,43 @@ const Profile = () => {
           .from('profiles')
           .select('*')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
         
         if (error) throw error;
         
-        setProfile(data as ProfileType);
-        setUsername(data?.username || '');
+        if (data) {
+          setProfile(data as ProfileType);
+          setUsername(data?.username || '');
+        } else {
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert([{ 
+              id: user.id, 
+              username: user.email?.split('@')[0] || '', 
+              updated_at: new Date().toISOString()
+            }])
+            .select('*')
+            .single();
+          
+          if (createError) throw createError;
+          
+          setProfile(newProfile as ProfileType);
+          setUsername(newProfile?.username || '');
+        }
       } catch (error) {
         console.error('Error fetching profile:', error);
+        toast({
+          title: "Error fetching profile",
+          description: "Could not load your profile. Please try again later.",
+          variant: "destructive"
+        });
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchProfile();
-  }, [user]);
+  }, [user, toast]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +87,6 @@ const Profile = () => {
         description: "Your profile has been updated successfully",
       });
       
-      // Update local state
       setProfile(prev => prev ? { ...prev, username } : null);
     } catch (error: any) {
       toast({

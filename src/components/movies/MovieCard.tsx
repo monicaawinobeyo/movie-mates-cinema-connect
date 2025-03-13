@@ -1,11 +1,12 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Play, Plus, ThumbsUp, Info } from 'lucide-react';
+import { Play, ThumbsUp, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Movie, TVShow } from '@/types/tmdb';
 import { getPosterUrl } from '@/services/api';
+import AddToListDialog from './AddToListDialog';
 
 interface MovieCardProps {
   item?: Movie | TVShow;
@@ -27,13 +28,6 @@ const MovieCard = ({ item, id, title: propTitle, posterPath: propPosterPath, typ
   const releaseDate = item ? ('release_date' in item ? item.release_date : item.first_air_date) : '';
   const year = releaseDate ? new Date(releaseDate).getFullYear() : '';
   const rating = item ? Math.round(item.vote_average * 10) : 0;
-  
-  const handleAddToList = () => {
-    toast({
-      title: "Added to My List",
-      description: `${title} has been added to your list`,
-    });
-  };
   
   return (
     <div 
@@ -68,9 +62,11 @@ const MovieCard = ({ item, id, title: propTitle, posterPath: propPosterPath, typ
               </Link>
             </Button>
             
-            <Button size="sm" variant="outline" onClick={handleAddToList}>
-              <Plus size={16} />
-            </Button>
+            <AddToListDialog 
+              mediaId={itemId} 
+              mediaType={type} 
+              title={title || ''}
+            />
             
             <Button size="sm" variant="outline" onClick={() => toast({ title: "Liked", description: `You liked ${title}` })}>
               <ThumbsUp size={16} />
