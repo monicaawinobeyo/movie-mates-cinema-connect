@@ -17,6 +17,7 @@ import Watchlist from '@/pages/Watchlist';
 import Search from '@/pages/Search';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
+import SharedList from '@/pages/SharedList';
 
 function App() {
   const { toasts } = useToast();
@@ -32,6 +33,7 @@ function App() {
           <Route path="movie/:id" element={<MovieDetails />} />
           <Route path="tv/:id" element={<TVDetails />} />
           <Route path="search" element={<Search />} />
+          <Route path="shared-list" element={<SharedList />} />
           <Route 
             path="profile" 
             element={
