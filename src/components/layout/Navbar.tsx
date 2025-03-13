@@ -1,123 +1,184 @@
 
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Bell, Search, User } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
+import { Film, Search, X, Menu } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import ProfileAvatar from '@/components/profile/ProfileAvatar';
+import { useMobile } from '@/hooks/use-mobile';
 
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const location = useLocation();
-  const { toast } = useToast();
-  
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-  
-  const handleLogin = () => {
-    toast({
-      title: "Coming Soon",
-      description: "Authentication will be implemented with Supabase integration",
-    });
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const isMobile = useMobile();
+  const { user } = useAuth();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+      setIsSearchOpen(false);
+    }
   };
 
-  const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'TV Shows', path: '/tv' },
-    { name: 'Movies', path: '/movies' },
-    { name: 'My List', path: '/my-list' },
-    { name: 'Rooms', path: '/rooms' },
-  ];
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
 
   return (
-    <nav 
-      className={cn(
-        'fixed w-full z-50 transition-colors duration-300 px-4 md:px-8 py-4 flex items-center justify-between', 
-        isScrolled ? 'bg-background' : 'bg-transparent'
-      )}
-    >
-      <div className="flex items-center">
-        <Link to="/" className="mr-8">
-          <h1 className="text-primary font-bold text-2xl">ReelMates</h1>
-        </Link>
-        
-        <div className="hidden md:flex space-x-6">
-          {navLinks.map((link) => (
-            <Link 
-              key={link.name}
-              to={link.path}
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                location.pathname === link.path ? "text-white" : "text-muted-foreground"
+    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        {/* Logo and Main Nav */}
+        <div className="flex items-center">
+          <Link to="/" className="flex items-center mr-6">
+            <Film className="h-6 w-6 mr-2" />
+            <span className="font-bold text-xl hidden sm:inline-block">MovieSocial</span>
+          </Link>
+          
+          {!isMobile && (
+            <nav className="hidden md:flex items-center space-x-4">
+              <Button variant="ghost" asChild>
+                <Link to="/">Home</Link>
+              </Button>
+              <Button variant="ghost" asChild>
+                <Link to="/movies">Movies</Link>
+              </Button>
+              <Button variant="ghost" asChild>
+                <Link to="/tv">TV Shows</Link>
+              </Button>
+              {user && (
+                <Button variant="ghost" asChild>
+                  <Link to="/rooms">Watch Rooms</Link>
+                </Button>
               )}
-            >
-              {link.name}
-            </Link>
-          ))}
+            </nav>
+          )}
         </div>
-      </div>
-      
-      <div className="flex items-center space-x-4">
-        <div className="relative">
-          {isSearchOpen ? (
-            <div className="flex items-center bg-secondary rounded-md overflow-hidden animate-fade-in">
-              <Input 
-                type="text" 
-                placeholder="Titles, people, genres" 
-                className="border-0 bg-transparent h-9 pl-2 focus-visible:ring-0 focus-visible:ring-offset-0" 
+
+        {/* Search and Auth */}
+        <div className="flex items-center space-x-2">
+          {/* Search Form - Desktop */}
+          {!isMobile && !isSearchOpen && (
+            <form onSubmit={handleSearch} className="hidden md:flex relative">
+              <Input
+                type="search"
+                placeholder="Search..."
+                className="w-64"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
               <Button 
+                type="submit" 
+                size="sm" 
                 variant="ghost" 
-                size="icon" 
-                className="h-9 w-9"
-                onClick={() => setIsSearchOpen(false)}
+                className="absolute right-0 top-0 h-full"
               >
-                <Search size={18} />
+                <Search className="h-4 w-4" />
               </Button>
-            </div>
-          ) : (
+            </form>
+          )}
+
+          {/* Mobile Search Icon */}
+          {isMobile && !isSearchOpen && (
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={() => setIsSearchOpen(true)}
             >
-              <Search size={20} />
+              <Search className="h-5 w-5" />
+            </Button>
+          )}
+
+          {/* Mobile Search Form */}
+          {isMobile && isSearchOpen && (
+            <div className="fixed inset-0 z-50 bg-background p-4 flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">Search</h2>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setIsSearchOpen(false)}
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+              <form onSubmit={handleSearch} className="flex-1">
+                <div className="relative">
+                  <Input
+                    type="search"
+                    placeholder="Search movies, tv shows..."
+                    className="w-full"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    autoFocus
+                  />
+                  <Button 
+                    type="submit" 
+                    size="sm" 
+                    variant="ghost" 
+                    className="absolute right-0 top-0 h-full"
+                  >
+                    <Search className="h-4 w-4" />
+                  </Button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Auth Buttons */}
+          {!user ? (
+            <Button variant="default" asChild>
+              <Link to="/auth">Sign In</Link>
+            </Button>
+          ) : (
+            <ProfileAvatar />
+          )}
+
+          {/* Mobile Menu Toggle */}
+          {isMobile && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleMobileMenu}
+              className="md:hidden"
+            >
+              <Menu className="h-5 w-5" />
             </Button>
           )}
         </div>
-        
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={() => toast({ 
-            title: "Notifications", 
-            description: "You have no new notifications" 
-          })}
-        >
-          <Bell size={20} />
-        </Button>
-        
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={handleLogin}
-        >
-          <User size={20} />
-        </Button>
       </div>
-    </nav>
+
+      {/* Mobile Menu */}
+      {isMobile && isMobileMenuOpen && (
+        <div className="md:hidden p-4 bg-background border-t">
+          <nav className="flex flex-col space-y-2">
+            <Button variant="ghost" asChild className="justify-start">
+              <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+            </Button>
+            <Button variant="ghost" asChild className="justify-start">
+              <Link to="/movies" onClick={() => setIsMobileMenuOpen(false)}>Movies</Link>
+            </Button>
+            <Button variant="ghost" asChild className="justify-start">
+              <Link to="/tv" onClick={() => setIsMobileMenuOpen(false)}>TV Shows</Link>
+            </Button>
+            {user && (
+              <>
+                <Button variant="ghost" asChild className="justify-start">
+                  <Link to="/watchlist" onClick={() => setIsMobileMenuOpen(false)}>My Watchlist</Link>
+                </Button>
+                <Button variant="ghost" asChild className="justify-start">
+                  <Link to="/rooms" onClick={() => setIsMobileMenuOpen(false)}>Watch Rooms</Link>
+                </Button>
+              </>
+            )}
+          </nav>
+        </div>
+      )}
+    </header>
   );
 };
 
