@@ -8,9 +8,14 @@ import MovieCard from '@/components/movies/MovieCard';
 import { api } from '@/services/api';
 import { useToast } from '@/components/ui/use-toast';
 import { Movie, TVShow } from '@/types/tmdb';
-import { UserListItem, Tables } from '@/types/supabase';
+import { UserListItem } from '@/types/supabase';
 
-interface MediaItemWithType extends (Movie | TVShow) {
+// Define a type that combines Movie and TVShow with a media_type field
+interface MediaItemWithType {
+  id: number;
+  title?: string;
+  name?: string;
+  poster_path: string | null;
   media_type: 'movie' | 'tv';
 }
 
@@ -70,13 +75,20 @@ const Watchlist = () => {
     
     const detailsPromises = items.map(async (item) => {
       try {
-        let details;
+        let details: any;
         if (item.media_type === 'movie') {
           details = await api.getMovieDetails(item.media_id);
         } else {
           details = await api.getTVShowDetails(item.media_id);
         }
-        return { ...details, media_type: item.media_type };
+        return { 
+          ...details, 
+          media_type: item.media_type,
+          id: details.id,
+          title: 'title' in details ? details.title : undefined,
+          name: 'name' in details ? details.name : undefined,
+          poster_path: details.poster_path
+        } as MediaItemWithType;
       } catch (error) {
         console.error(`Error fetching details for ${item.media_type} ${item.media_id}:`, error);
         return null;
@@ -157,7 +169,7 @@ const Watchlist = () => {
               {toWatch.map((item) => (
                 <MovieCard
                   key={`${item.media_type}-${item.id}`}
-                  title={'title' in item ? item.title : item.name}
+                  title={item.title || item.name || ''}
                   posterPath={item.poster_path}
                   id={item.id}
                   type={item.media_type}
@@ -179,7 +191,7 @@ const Watchlist = () => {
               {watched.map((item) => (
                 <MovieCard
                   key={`${item.media_type}-${item.id}`}
-                  title={'title' in item ? item.title : item.name}
+                  title={item.title || item.name || ''}
                   posterPath={item.poster_path}
                   id={item.id}
                   type={item.media_type}
@@ -201,7 +213,7 @@ const Watchlist = () => {
               {favorites.map((item) => (
                 <MovieCard
                   key={`${item.media_type}-${item.id}`}
-                  title={'title' in item ? item.title : item.name}
+                  title={item.title || item.name || ''}
                   posterPath={item.poster_path}
                   id={item.id}
                   type={item.media_type}
