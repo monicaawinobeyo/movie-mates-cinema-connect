@@ -8,15 +8,19 @@ import MovieCard from '@/components/movies/MovieCard';
 import { api } from '@/services/api';
 import { useToast } from '@/components/ui/use-toast';
 import { Movie, TVShow } from '@/types/tmdb';
-import { UserListItem } from '@/types/supabase';
+import { UserListItem, Tables } from '@/types/supabase';
+
+interface MediaItemWithType extends (Movie | TVShow) {
+  media_type: 'movie' | 'tv';
+}
 
 const Watchlist = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
-  const [watched, setWatched] = useState<(Movie | TVShow)[]>([]);
-  const [favorites, setFavorites] = useState<(Movie | TVShow)[]>([]);
-  const [toWatch, setToWatch] = useState<(Movie | TVShow)[]>([]);
+  const [watched, setWatched] = useState<MediaItemWithType[]>([]);
+  const [favorites, setFavorites] = useState<MediaItemWithType[]>([]);
+  const [toWatch, setToWatch] = useState<MediaItemWithType[]>([]);
   
   useEffect(() => {
     const fetchUserLists = async () => {
@@ -31,7 +35,7 @@ const Watchlist = () => {
         if (error) throw error;
         
         // Define the items with the correct type
-        const userItems = userListData as unknown as UserListItem[];
+        const userItems = userListData as UserListItem[];
         
         const watchedItems = userItems.filter(item => item.list_type === 'watched');
         const favoriteItems = userItems.filter(item => item.list_type === 'favorite');
@@ -60,7 +64,7 @@ const Watchlist = () => {
   
   const fetchMediaDetails = async (
     items: UserListItem[], 
-    setItems: React.Dispatch<React.SetStateAction<(Movie | TVShow)[]>>
+    setItems: React.Dispatch<React.SetStateAction<MediaItemWithType[]>>
   ) => {
     if (items.length === 0) return;
     
@@ -80,7 +84,7 @@ const Watchlist = () => {
     });
     
     const results = await Promise.all(detailsPromises);
-    setItems(results.filter(Boolean) as (Movie | TVShow)[]);
+    setItems(results.filter(Boolean) as MediaItemWithType[]);
   };
   
   const handleRemoveFromList = async (mediaId: number, mediaType: 'movie' | 'tv', listType: 'watched' | 'favorite' | 'to_watch') => {
@@ -156,7 +160,7 @@ const Watchlist = () => {
                   title={'title' in item ? item.title : item.name}
                   posterPath={item.poster_path}
                   id={item.id}
-                  type={(item as any).media_type}
+                  type={item.media_type}
                 />
               ))}
             </div>
@@ -178,7 +182,7 @@ const Watchlist = () => {
                   title={'title' in item ? item.title : item.name}
                   posterPath={item.poster_path}
                   id={item.id}
-                  type={(item as any).media_type}
+                  type={item.media_type}
                 />
               ))}
             </div>
@@ -200,7 +204,7 @@ const Watchlist = () => {
                   title={'title' in item ? item.title : item.name}
                   posterPath={item.poster_path}
                   id={item.id}
-                  type={(item as any).media_type}
+                  type={item.media_type}
                 />
               ))}
             </div>

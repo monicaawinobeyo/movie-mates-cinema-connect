@@ -37,3 +37,11 @@ export interface UserListItem {
   list_type: 'watched' | 'favorite' | 'to_watch';
   added_at: string;
 }
+
+// Define Database type helper for Supabase
+export type Tables = {
+  profiles: Profile;
+  rooms: Room;
+  room_members: RoomMember;
+  user_lists: UserListItem;
+}

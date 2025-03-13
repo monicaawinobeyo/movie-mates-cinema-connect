@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Room, RoomMember } from '@/types/supabase';
+import { Room, RoomMember, Tables } from '@/types/supabase';
 
 const RoomDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,7 +33,7 @@ const RoomDetails = () => {
         
         if (roomError) throw roomError;
         
-        setRoom(roomData as unknown as Room);
+        setRoom(roomData as Room);
         
         // Fetch members
         const { data: membersData, error: membersError } = await supabase
@@ -83,7 +84,7 @@ const RoomDetails = () => {
             user_id: user.id,
             role: 'member'
           }
-        ] as any);
+        ]);
       
       if (error) throw error;
       

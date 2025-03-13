@@ -1,10 +1,9 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Search, X, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Film, Search, X, Menu } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import ProfileAvatar from '@/components/profile/ProfileAvatar';
+import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Navbar = () => {
@@ -14,6 +13,13 @@ const Navbar = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname === '/search') {
+      setSearchQuery(location.search.split('=')[1]);
+    }
+  }, [location]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,7 +7,12 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { PlusCircle, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
-import { Room } from '@/types/supabase';
+import { Room, Tables } from '@/types/supabase';
+
+interface RoomMemberWithRoom {
+  room_id: string;
+  rooms: Room;
+}
 
 const Rooms = () => {
   const { user } = useAuth();
@@ -36,7 +42,7 @@ const Rooms = () => {
         
         if (error) throw error;
         
-        const typedData = data as unknown as { rooms: Room }[];
+        const typedData = data as unknown as RoomMemberWithRoom[];
         const rooms = typedData.map(item => item.rooms).filter(Boolean);
         setUserRooms(rooms);
       } catch (error) {

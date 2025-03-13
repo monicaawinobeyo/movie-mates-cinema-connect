@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Profile as ProfileType } from '@/types/supabase';
+import { Profile as ProfileType, Tables } from '@/types/supabase';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -30,7 +31,7 @@ const Profile = () => {
         
         if (error) throw error;
         
-        setProfile(data as unknown as ProfileType);
+        setProfile(data as ProfileType);
         setUsername(data?.username || '');
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -55,7 +56,7 @@ const Profile = () => {
 
       const { error } = await supabase
         .from('profiles')
-        .update(updates as any)
+        .update(updates)
         .eq('id', user.id);
       
       if (error) throw error;

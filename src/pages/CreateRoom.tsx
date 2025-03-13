@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
+import { Tables } from '@/types/supabase';
 
 const CreateRoom = () => {
   const { user } = useAuth();
@@ -58,7 +59,7 @@ const CreateRoom = () => {
             room_code: roomCode,
             is_private: isPrivate
           }
-        ] as any)
+        ])
         .select('id')
         .single();
       
@@ -73,7 +74,7 @@ const CreateRoom = () => {
             user_id: user.id,
             role: 'admin'
           }
-        ] as any);
+        ]);
       
       if (memberError) throw memberError;
       
