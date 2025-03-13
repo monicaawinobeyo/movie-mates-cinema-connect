@@ -58,7 +58,7 @@ const CreateRoom = () => {
             room_code: roomCode,
             is_private: isPrivate
           }
-        ])
+        ] as any)
         .select('id')
         .single();
       
@@ -69,11 +69,11 @@ const CreateRoom = () => {
         .from('room_members')
         .insert([
           {
-            room_id: roomData.id,
+            room_id: roomData?.id,
             user_id: user.id,
             role: 'admin'
           }
-        ]);
+        ] as any);
       
       if (memberError) throw memberError;
       
@@ -82,7 +82,7 @@ const CreateRoom = () => {
         description: "Your watch room has been created successfully"
       });
       
-      navigate(`/rooms/${roomData.id}`);
+      navigate(`/rooms/${roomData?.id}`);
     } catch (error: any) {
       console.error('Error creating room:', error);
       toast({

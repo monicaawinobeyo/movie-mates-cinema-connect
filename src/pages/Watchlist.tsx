@@ -5,16 +5,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import MovieCard from '@/components/movies/MovieCard';
-import { api, getPosterUrl } from '@/services/api';
+import { api } from '@/services/api';
 import { useToast } from '@/components/ui/use-toast';
 import { Movie, TVShow } from '@/types/tmdb';
-
-interface UserListItem {
-  id: string;
-  media_id: number;
-  media_type: 'movie' | 'tv';
-  list_type: 'watched' | 'favorite' | 'to_watch';
-}
+import { UserListItem } from '@/types/supabase';
 
 const Watchlist = () => {
   const { user } = useAuth();
@@ -36,9 +30,12 @@ const Watchlist = () => {
         
         if (error) throw error;
         
-        const watchedItems: UserListItem[] = userListData.filter(item => item.list_type === 'watched');
-        const favoriteItems: UserListItem[] = userListData.filter(item => item.list_type === 'favorite');
-        const toWatchItems: UserListItem[] = userListData.filter(item => item.list_type === 'to_watch');
+        // Define the items with the correct type
+        const userItems = userListData as unknown as UserListItem[];
+        
+        const watchedItems = userItems.filter(item => item.list_type === 'watched');
+        const favoriteItems = userItems.filter(item => item.list_type === 'favorite');
+        const toWatchItems = userItems.filter(item => item.list_type === 'to_watch');
         
         // Fetch details for all media items
         await Promise.all([
@@ -156,10 +153,10 @@ const Watchlist = () => {
               {toWatch.map((item) => (
                 <MovieCard
                   key={`${item.media_type}-${item.id}`}
-                  id={item.id}
                   title={'title' in item ? item.title : item.name}
                   posterPath={item.poster_path}
-                  type={item.media_type as 'movie' | 'tv'}
+                  id={item.id}
+                  type={(item as any).media_type}
                 />
               ))}
             </div>
@@ -178,10 +175,10 @@ const Watchlist = () => {
               {watched.map((item) => (
                 <MovieCard
                   key={`${item.media_type}-${item.id}`}
-                  id={item.id}
                   title={'title' in item ? item.title : item.name}
                   posterPath={item.poster_path}
-                  type={item.media_type as 'movie' | 'tv'}
+                  id={item.id}
+                  type={(item as any).media_type}
                 />
               ))}
             </div>
@@ -200,10 +197,10 @@ const Watchlist = () => {
               {favorites.map((item) => (
                 <MovieCard
                   key={`${item.media_type}-${item.id}`}
-                  id={item.id}
                   title={'title' in item ? item.title : item.name}
                   posterPath={item.poster_path}
-                  type={item.media_type as 'movie' | 'tv'}
+                  id={item.id}
+                  type={(item as any).media_type}
                 />
               ))}
             </div>

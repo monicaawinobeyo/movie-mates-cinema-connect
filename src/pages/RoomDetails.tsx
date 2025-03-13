@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,25 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-interface Room {
-  id: string;
-  name: string;
-  description: string | null;
-  room_code: string;
-  is_private: boolean;
-  created_by: string;
-}
-
-interface RoomMember {
-  id: string;
-  user_id: string;
-  role: 'admin' | 'member';
-  profiles: {
-    username: string | null;
-    avatar_url: string | null;
-  };
-}
+import { Room, RoomMember } from '@/types/supabase';
 
 const RoomDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -51,7 +32,7 @@ const RoomDetails = () => {
         
         if (roomError) throw roomError;
         
-        setRoom(roomData);
+        setRoom(roomData as unknown as Room);
         
         // Fetch members
         const { data: membersData, error: membersError } = await supabase
@@ -69,10 +50,11 @@ const RoomDetails = () => {
         
         if (membersError) throw membersError;
         
-        setMembers(membersData);
+        setMembers(membersData as unknown as RoomMember[]);
         
         // Check if current user is a member
-        const userIsMember = membersData.some(member => member.user_id === user.id);
+        const typedMembersData = membersData as unknown as RoomMember[];
+        const userIsMember = typedMembersData.some(member => member.user_id === user.id);
         setIsUserMember(userIsMember);
       } catch (error) {
         console.error('Error fetching room details:', error);
@@ -101,7 +83,7 @@ const RoomDetails = () => {
             user_id: user.id,
             role: 'member'
           }
-        ]);
+        ] as any);
       
       if (error) throw error;
       
@@ -128,7 +110,7 @@ const RoomDetails = () => {
       
       if (membersError) throw membersError;
       
-      setMembers(data);
+      setMembers(data as unknown as RoomMember[]);
     } catch (error) {
       console.error('Error joining room:', error);
       toast({

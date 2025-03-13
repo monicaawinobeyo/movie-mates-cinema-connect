@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -6,14 +5,14 @@ import { Input } from '@/components/ui/input';
 import { Film, Search, X, Menu } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import ProfileAvatar from '@/components/profile/ProfileAvatar';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const { user } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {

@@ -8,19 +8,25 @@ import { Movie, TVShow } from '@/types/tmdb';
 import { getPosterUrl } from '@/services/api';
 
 interface MovieCardProps {
-  item: Movie | TVShow;
-  type: 'movie' | 'tv';
+  item?: Movie | TVShow;
+  id?: number;
+  title?: string;
+  posterPath?: string | null;
+  type?: 'movie' | 'tv';
   className?: string;
 }
 
-const MovieCard = ({ item, type, className = '' }: MovieCardProps) => {
+const MovieCard = ({ item, id, title: propTitle, posterPath: propPosterPath, type = 'movie', className = '' }: MovieCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const { toast } = useToast();
   
-  const title = 'title' in item ? item.title : item.name;
-  const releaseDate = 'release_date' in item ? item.release_date : item.first_air_date;
+  // Use either the item properties or the direct props
+  const title = propTitle || (item ? ('title' in item ? item.title : item.name) : '');
+  const posterPath = propPosterPath || (item ? item.poster_path : null);
+  const itemId = id || (item ? item.id : 0);
+  const releaseDate = item ? ('release_date' in item ? item.release_date : item.first_air_date) : '';
   const year = releaseDate ? new Date(releaseDate).getFullYear() : '';
-  const rating = Math.round(item.vote_average * 10);
+  const rating = item ? Math.round(item.vote_average * 10) : 0;
   
   const handleAddToList = () => {
     toast({
@@ -37,7 +43,7 @@ const MovieCard = ({ item, type, className = '' }: MovieCardProps) => {
     >
       <div className="aspect-[2/3] bg-muted">
         <img 
-          src={getPosterUrl(item.poster_path)}
+          src={getPosterUrl(posterPath)}
           alt={title}
           className="w-full h-full object-cover"
           loading="lazy"
@@ -57,7 +63,7 @@ const MovieCard = ({ item, type, className = '' }: MovieCardProps) => {
           
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="default" className="flex-1 bg-primary hover:bg-primary/90" asChild>
-              <Link to={`/${type}/${item.id}`}>
+              <Link to={`/${type}/${itemId}`}>
                 <Play size={16} className="mr-1" /> Play
               </Link>
             </Button>
@@ -71,7 +77,7 @@ const MovieCard = ({ item, type, className = '' }: MovieCardProps) => {
             </Button>
             
             <Button size="sm" variant="outline" asChild>
-              <Link to={`/${type}/${item.id}`}>
+              <Link to={`/${type}/${itemId}`}>
                 <Info size={16} />
               </Link>
             </Button>
