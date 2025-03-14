@@ -2,7 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
-import Index from '@/pages/Index';
+import Index from '@/pages/index';
 import Profile from '@/pages/Profile';
 import Movies from '@/pages/Movies';
 import TVShows from '@/pages/TVShows';

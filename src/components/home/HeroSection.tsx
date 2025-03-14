@@ -7,7 +7,7 @@ import { Movie, TVShow } from '@/types/tmdb';
 import { getBackdropUrl } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 
-interface HeroSectionProps {
+export interface HeroSectionProps {
   items: (Movie | TVShow)[];
 }
 

@@ -1,15 +1,28 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '@/services/api';
 import HeroSection from '@/components/home/HeroSection';
 import MovieRow from '@/components/movies/MovieRow';
 import MediaRecommendations from '@/components/recommendations/MediaRecommendations';
 import { useToast } from '@/components/ui/use-toast';
+import { Movie, TVShow } from '@/types/tmdb';
 
 const Index = () => {
   const { toast } = useToast();
+  const [trendingMovies, setTrendingMovies] = useState<Movie[]>([]);
   
   useEffect(() => {
+    const fetchTrendingMovies = async () => {
+      try {
+        const data = await api.getTrending('movie', 'week');
+        setTrendingMovies(data.results);
+      } catch (error) {
+        console.error('Error fetching trending movies:', error);
+      }
+    };
+    
+    fetchTrendingMovies();
+    
     const checkForDarkModePreference = () => {
       const storedTheme = localStorage.getItem('theme');
       if (!storedTheme) {
@@ -26,32 +39,32 @@ const Index = () => {
   
   return (
     <div className="space-y-8">
-      <HeroSection />
+      <HeroSection items={trendingMovies} />
       
       <div className="container px-4 mx-auto space-y-8">
         <MediaRecommendations />
         
         <MovieRow
           title="Trending Movies"
-          endpoint={() => api.getTrending('movie', 'week')}
+          fetchMedia={() => api.getTrending('movie', 'week')}
           mediaType="movie"
         />
         
         <MovieRow
           title="Trending TV Shows"
-          endpoint={() => api.getTrending('tv', 'week')}
+          fetchMedia={() => api.getTrending('tv', 'week')}
           mediaType="tv"
         />
         
         <MovieRow
           title="Top Rated Movies"
-          endpoint={() => api.getTopRatedMovies()}
+          fetchMedia={() => api.getTopRatedMovies()}
           mediaType="movie"
         />
         
         <MovieRow
           title="Top Rated TV Shows"
-          endpoint={() => api.getTopRatedTVShows()}
+          fetchMedia={() => api.getTopRatedTVShows()}
           mediaType="tv"
         />
       </div>

@@ -5,6 +5,8 @@ export interface Profile {
   username: string | null;
   avatar_url: string | null;
   updated_at: string | null;
+  bio: string | null;
+  favorite_genres: string | null;
 }
 
 export interface Room {
