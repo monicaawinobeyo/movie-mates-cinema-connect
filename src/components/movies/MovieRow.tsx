@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Movie, TVShow } from '@/types/tmdb';
@@ -7,18 +6,33 @@ import { Button } from '@/components/ui/button';
 
 export interface MovieRowProps {
   title: string;
-  fetchMedia: () => Promise<any>;
-  mediaType: 'movie' | 'tv';
+  fetchMedia?: () => Promise<any>;
+  mediaType?: 'movie' | 'tv';
+  items?: (Movie | TVShow)[];
+  type?: 'movie' | 'tv';
 }
 
-const MovieRow = ({ title, fetchMedia, mediaType }: MovieRowProps) => {
+const MovieRow = ({ title, fetchMedia, mediaType, items, type }: MovieRowProps) => {
   const [media, setMedia] = useState<(Movie | TVShow)[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const rowRef = useRef<HTMLDivElement>(null);
   
+  const effectiveMediaType = mediaType || type || 'movie';
+  
   useEffect(() => {
+    if (items) {
+      setMedia(items);
+      setLoading(false);
+      return;
+    }
+    
     const loadMedia = async () => {
+      if (!fetchMedia) {
+        setLoading(false);
+        return;
+      }
+      
       try {
         setLoading(true);
         const data = await fetchMedia();
@@ -33,7 +47,7 @@ const MovieRow = ({ title, fetchMedia, mediaType }: MovieRowProps) => {
     };
     
     loadMedia();
-  }, [fetchMedia, title]);
+  }, [fetchMedia, title, items]);
   
   const scroll = (direction: 'left' | 'right') => {
     if (rowRef.current) {
@@ -104,7 +118,7 @@ const MovieRow = ({ title, fetchMedia, mediaType }: MovieRowProps) => {
                 id={item.id}
                 title={'title' in item ? item.title : item.name}
                 posterPath={item.poster_path}
-                type={mediaType}
+                type={effectiveMediaType}
               />
             </div>
           ))}
